@@ -21,7 +21,10 @@ class session extends \SessionHandler
 
     public function open($save_path = null, $id)
     {
-        return $this->db->insert('session', ['id' => $id, 'data' => NULL, 'timestamp' => time()]);
+        //var_dump($save_path, $id);
+        //$this->db->insert('sessions', ['id' => $id, 'data' => NULL, 'timestamp' => time()]);
+
+        return true;
     }
 
     public function read($id)
@@ -31,11 +34,17 @@ class session extends \SessionHandler
         return json_decode($this->session_cache->fetch($this->session_cache_identifier . $id));
     }
 
+    public function close()
+    {
+        return true;
+    }
+
     public function write($id, $data)
     {
         //do a dumb write for now
+        var_dump($data, $id);
         $data_json = json_encode($data);
-        $this->db->update('session', ['data' => $data_json], ['id' => $id]);
+        $this->db->update('sessions', ['data' => $data_json], ['id' => $id]);
         //update the cache
 
         $this->session_cache->save($this->session_cache_identifier . $id, $data_json);
@@ -45,7 +54,7 @@ class session extends \SessionHandler
 
     public function destroy($id)
     {
-        $this->db->delete('session', ['id' => $id]);
+        $this->db->delete('sessions', ['id' => $id]);
         $this->session_cache->delete($this->session_cache_identifier . $id);
 
         return true; // debug
@@ -54,5 +63,12 @@ class session extends \SessionHandler
     public function gc($lifetime)
     {
         return true;
+    }
+
+    public function startsession()
+    {
+        session_id(base64_encode(random_bytes(48)));
+        session_name("id");
+        session_start();
     }
 }
