@@ -29,9 +29,12 @@ class session extends \SessionHandler
 
     public function read($id)
     {
-        //return $this->db->row("SELECT data FROM session WHERE id = ?", $id);
+        //return $this->db->row("SELECT data FROM sessions WHERE id = ?", $id);
         //use cache
-        return json_decode($this->session_cache->fetch($this->session_cache_identifier . $id));
+        var_dump($id);
+        var_dump(json_decode($this->session_cache->fetch($this->session_cache_identifier . $id)));
+
+        return true;
     }
 
     public function close()
@@ -42,9 +45,23 @@ class session extends \SessionHandler
     public function write($id, $data)
     {
         //do a dumb write for now
-        var_dump($data, $id);
-        $data_json = json_encode($data);
-        $this->db->update('sessions', ['data' => $data_json], ['id' => $id]);
+        var_dump($id);
+        if (!empty($data)) {
+            $data_json = json_encode($data);
+        } else {
+            $data_json = null;
+        }
+        if ($this->db->row("SELECT id FROM sessions WHERE id = ?", $id)) {
+            var_dump("yes");
+            $this->db->update('sessions', ['data' => $data_json], ['id' => $id]);
+        } else {
+            var_dump("no");
+            $this->db->insert('sessions', [
+                'id' => $id,
+                'data' => $data_json,
+                'timestamp' => time()
+            ]);
+        }
         //update the cache
 
         $this->session_cache->save($this->session_cache_identifier . $id, $data_json);
@@ -65,9 +82,15 @@ class session extends \SessionHandler
         return true;
     }
 
+    public function create_sid()
+    {
+        return base64_encode(random_bytes(48));
+    }
+
     public function startsession()
     {
-        session_id(base64_encode(random_bytes(48)));
+        $cookieParams = session_get_cookie_params();
+        session_set_cookie_params($cookieParams["lifetime"], "/", $cookieParams["domain"], FALSE, FALSE);
         session_name("id");
         session_start();
     }
