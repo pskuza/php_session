@@ -11,7 +11,7 @@ class session
 
     protected $session_cache_identifier = "php_session_";
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache $session_cache)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache)
     {
         $this->db = $db;
 
