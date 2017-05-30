@@ -3,7 +3,7 @@
 
 namespace php_session;
 
-class session
+class session extends \SessionHandler
 {
     protected $db = null;
 
@@ -17,28 +17,21 @@ class session
 
         $this->session_cache = $session_cache;
 
-        session_set_save_handler(array($this, 'open'),
-            array($this, 'close'),
-            array($this, 'read'),
-            array($this, 'write'),
-            array($this, 'destroy'),
-            array($this, 'gc'));
-        register_shutdown_function('session_write_close');
     }
 
-    public function open(string $id)
+    public function open($save_path = null, $id)
     {
         return $this->db->insert('session', ['id' => $id, 'data' => NULL, 'timestamp' => time()]);
     }
 
-    public function read(string $id)
+    public function read($id)
     {
         //return $this->db->row("SELECT data FROM session WHERE id = ?", $id);
         //use cache
         return json_decode($this->session_cache->fetch($this->session_cache_identifier . $id));
     }
 
-    public function write(string $id, $data)
+    public function write($id, $data)
     {
         //do a dumb write for now
         $data_json = json_encode($data);
@@ -50,7 +43,7 @@ class session
         return true;
     }
 
-    public function destroy(string $id)
+    public function destroy($id)
     {
         $this->db->delete('session', ['id' => $id]);
         $this->session_cache->delete($this->session_cache_identifier . $id);
@@ -58,7 +51,7 @@ class session
         return true; // debug
     }
 
-    public function gc()
+    public function gc($lifetime)
     {
         return true;
     }
