@@ -36,7 +36,6 @@ class session extends SessionHandler
         if (!is_null($per_variable_locking)) {
             $this->per_variable_locking = $per_variable_locking;
         }
-
     }
 
     public function open($save_path = null, $id = null)
