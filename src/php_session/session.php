@@ -15,7 +15,9 @@ class session extends \SessionHandler
 
     protected $secure = true;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null)
+    protected $per_variable_locking = false;
+
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null, bool $per_variable_locking = null)
     {
         $this->db = $db;
 
@@ -27,6 +29,10 @@ class session extends \SessionHandler
 
         if (!is_null($secure)) {
             $this->secure = $secure;
+        }
+
+        if (!is_null($per_variable_locking)) {
+            $this->per_variable_locking = $per_variable_locking;
         }
 
     }
@@ -101,10 +107,11 @@ class session extends \SessionHandler
         return base64_encode(random_bytes(48));
     }
 
-    public function startsession()
+    public function startsession(int $lifetime = null, string $path = null, string $domain = null)
     {
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams["lifetime"], "/", $cookieParams["domain"], $this->secure, TRUE);
+        var_dump($cookieParams);
         session_name("id");
         session_start();
     }
