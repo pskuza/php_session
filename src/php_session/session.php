@@ -136,7 +136,6 @@ class session extends SessionHandler
     {
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams["lifetime"], "/", $cookieParams["domain"], $this->secure, TRUE);
-        var_dump($cookieParams);
         session_name("id");
         session_start();
     }
