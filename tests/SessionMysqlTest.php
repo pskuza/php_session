@@ -10,14 +10,21 @@ class SessionMysqlTest extends TestCase
     public function testSessions()
     {
         //run php web server in tests dir
-        shell_exec('cd tests && php -S localhost:8000 >/dev/null 2>/dev/null &');
+        shell_exec('cd tests && php -S 127.0.0.1:8080 >/dev/null 2>/dev/null &');
 
         $client = new GuzzleHttp\Client(['cookies' => true]);
 
-        $r = $client->request('GET', 'http://localhost:8000/SessionMysql.php?tests=0');
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0');
 
-        //var_dump($r->getHeaders());
+        $headers = $r->getHeaders();
 
-        $this->assertArrayHaskey('Set-Cookie', $r->getHeaders());
+        $this->assertArrayHaskey('Set-Cookie', $headers);
+
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=1');
+
+        $headers_new = $r->getHeaders();
+
+        $this->assertTrue($headers['Set-Cookie'] !== $headers_new['Set-Cookie']);
+
     }
 }

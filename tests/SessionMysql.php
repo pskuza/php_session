@@ -27,9 +27,9 @@ switch ($_GET['tests']) {
         var_dump($_SESSION);
         break;
     case 1:
-        echo "i ist gleich 1";
+        $session->regenerate_id();
         break;
     case 2:
-        echo "i ist gleich 2";
+        die("some other stuff");
         break;
 }
