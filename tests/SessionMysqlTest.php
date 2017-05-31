@@ -3,29 +3,19 @@
 use PHPUnit\Framework\TestCase;
 
 use php_session\session;
+use GuzzleHttp\Client;
 
 class SessionMysqlTest extends TestCase
 {
     public function testSessions()
     {
-        $memcached = new Memcached();
-        $memcached->addServer('127.0.0.1', 11211);
+        //run php web server in tests dir
+        shell_exec('cd tests && php -S localhost:8000 >/dev/null 2>/dev/null &');
 
-        $cacheDriver = new \Doctrine\Common\Cache\MemcachedCache();
-        $cacheDriver->setMemcached($memcached);
+        $client = new GuzzleHttp\Client(['cookies' => true]);
 
-        $db = \ParagonIE\EasyDB\Factory::create(
-            'mysql:host=127.0.0.1;dbname=dev',
-            'root',
-            ''
-        );
+        $r = $client->request('GET', 'http://localhost:8000/SessionMysql.php?tests=0');
 
-        $session = new php_session\session($db, $cacheDriver, 0, false);
-
-        session_set_save_handler($session, true);
-
-        $session->startsession();
-
-
+        var_dump($r->getHeaders());
     }
 }
