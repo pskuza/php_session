@@ -65,20 +65,39 @@ class session extends \SessionHandler
 
     public function write($id, $data)
     {
-        //do a dumb write for now
-        if ($this->db->row("SELECT id FROM sessions WHERE id = ?", $id)) {
-            $this->db->update('sessions', ['data' => $data], ['id' => $id]);
+        //check if cached
+        if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
+            $data_cache = $this->session_cache->fetch($this->session_cache_identifier . $id);
+            if (!$this->equalstrings($data_cache, $data)) {
+                //update
+                $this->db->update('sessions', ['data' => $data], ['id' => $id]);
+                return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+            }
         } else {
-            $this->destroy($id);
-            $this->db->insert('sessions', [
-                'id' => $id,
-                'data' => $data,
-                'timestamp' => time()
-            ]);
+            //try reading from db
+            if ($data_cache = $this->db->cell("SELECT data FROM sessions WHERE id = ?", $id)) {
+                if (!$this->equalstrings($data_cache, $data)) {
+                    //update
+                    $this->db->update('sessions', ['data' => $data], ['id' => $id]);
+                    return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+                }
+            } else {
+                //not in cache and not in db (first write)
+                $this->db->insert('sessions', [
+                    'id' => $id,
+                    'data' => $data,
+                    'timestamp' => time()
+                ]);
+                return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+            }
         }
-        //update the cache
 
-        return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+        return true;
+    }
+
+    public function equalstrings(string $olddata, string $newdata)
+    {
+        return $olddata === $newdata;
     }
 
     public function destroy($id)
