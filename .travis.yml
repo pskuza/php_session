@@ -11,7 +11,7 @@ install:
     - composer install
 before_script:
     - curl http://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -o php-cs-fixer.phar
-    - chmod +x /home/travis/build/pskuza/php_session/tests/mysql.sh && bash /home/travis/build/pskuza/php_session/tests/mysql.sh
+    - chmod +x tests/mysql.sh && bash tests/mysql.sh
 script:
     - php php-cs-fixer.phar fix -v --dry-run --diff src
     - "./vendor/bin/phpunit"
