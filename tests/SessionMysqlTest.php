@@ -16,6 +16,8 @@ class SessionMysqlTest extends TestCase
 
         $r = $client->request('GET', 'http://localhost:8000/SessionMysql.php?tests=0');
 
-        var_dump($r->getHeaders());
+        //var_dump($r->getHeaders());
+
+        $this->assertArrayHaskey('Set-Cookie', $r->getHeaders());
     }
 }
