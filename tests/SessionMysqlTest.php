@@ -11,7 +11,8 @@ class SessionMysqlTest extends TestCase
     {
         //run php web server in tests dir
         shell_exec('cd tests && php -S 127.0.0.1:8080 >/dev/null 2>/dev/null &');
-
+        //give php some time for the webserver
+        sleep(10);
         $client = new GuzzleHttp\Client(['cookies' => true]);
 
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0');
