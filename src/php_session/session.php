@@ -11,11 +11,11 @@ class session extends \SessionHandler
 
     protected $session_cache_identifier = "php_session_";
 
-    protected $cachetime = 3600;
+    protected $cachetime;
 
     protected $secure = true;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = null, bool $secure = null)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null)
     {
         $this->db = $db;
 
@@ -48,10 +48,10 @@ class session extends \SessionHandler
             return $this->session_cache->fetch($this->session_cache_identifier . $id);
         } else {
             //try reading from db
-            if ($data = $this->db->row("SELECT data FROM sessions WHERE id = ?", $id)) {
+            if ($data = $this->db->cell("SELECT data FROM sessions WHERE id = ?", $id)) {
                 var_dump("in db");
                 $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
-                return $data['data'];
+                return $data;
             }
         }
         return false;
@@ -81,8 +81,18 @@ class session extends \SessionHandler
         return $this->session_cache->delete($this->session_cache_identifier . $id);
     }
 
-    public function gc($lifetime)
+    public function gc($max)
     {
+        $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
+        foreach ($rows as $row) {
+            //delete from cache and db
+            $this->session_cache->delete($this->session_cache_identifier . $row['id']);
+            $this->db->beginTransaction();
+            $this->db->delete('sessions', [
+                'id' => $row['id']
+            ]);
+            $this->db->commit();
+        }
         return true;
     }
 
