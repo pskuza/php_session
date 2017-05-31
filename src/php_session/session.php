@@ -3,7 +3,9 @@
 
 namespace php_session;
 
-class session extends \SessionHandler
+use SessionHandler;
+
+class session extends SessionHandler
 {
     protected $db = null;
 
@@ -49,6 +51,7 @@ class session extends \SessionHandler
 
     public function read($id)
     {
+        var_dump($id);
         //use cache
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             return $this->session_cache->fetch($this->session_cache_identifier . $id);
@@ -58,6 +61,9 @@ class session extends \SessionHandler
                 var_dump("in db");
                 $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
                 return $data;
+            } else {
+                //return session name for session_regenerate_id
+                return session_name();
             }
         }
         return false;
@@ -133,5 +139,10 @@ class session extends \SessionHandler
         var_dump($cookieParams);
         session_name("id");
         session_start();
+    }
+
+    public function regenerate_id()
+    {
+        session_regenerate_id(true);
     }
 }
