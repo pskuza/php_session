@@ -49,23 +49,6 @@ class session extends SessionHandler
         return true;
     }
 
-    public function waitforlock($id)
-    {
-        //check if we have locking enabled
-        if ($this->session_locking) {
-            //check if the session is locked
-            if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked")) {
-                //session is locked and something is writing to it, wait till release or session_lock_time
-                $i_t = 0;
-                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked") || $i_t >= $this->session_lock_time) {
-                    //break out once we reached $session_lock_time
-                    sleep(0.1);
-                    $i_t = $i_t + 0.1;
-                }
-            }
-        }
-    }
-
     public function read($id)
     {
         $this->waitforlock($id);
@@ -83,6 +66,23 @@ class session extends SessionHandler
             }
         }
         return false;
+    }
+
+    public function waitforlock($id)
+    {
+        //check if we have locking enabled
+        if ($this->session_locking) {
+            //check if the session is locked
+            if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked")) {
+                //session is locked and something is writing to it, wait till release or session_lock_time
+                $i_t = 0;
+                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked") || $i_t >= $this->session_lock_time) {
+                    //break out once we reached $session_lock_time
+                    sleep(0.1);
+                    $i_t = $i_t + 0.1;
+                }
+            }
+        }
     }
 
     public function write($id, $data)
@@ -188,8 +188,8 @@ class session extends SessionHandler
 
     public function get($value = null)
     {
-        if (!$return = is_null($_SESSION[$value])) {
-            return $return;
+        if (is_null($value)) {
+            return $_SESSION[$value];
         }
         return $_SESSION;
     }
