@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-parallel -j5 -n0 curl -s -c /tmp/cookie.jar -b /tmp/cookie.jar "http://127.0.0.1:8080/SessionMysql.php?tests=4&locking=true" ::: {1..20}
+seq 20 | parallel -j5 --no-notice "curl -s -c /tmp/cookie.jar -b /tmp/cookie.jar http://127.0.0.1:8080/SessionMysql.php?tests=4&locking=true&whatever={}"
 #for good measure
 curl -s -c /tmp/cookie.jar -b /tmp/cookie.jar "http://127.0.0.1:8080/SessionMysql.php?tests=4&locking=true"
 curl -s -c /tmp/cookie.jar -b /tmp/cookie.jar "http://127.0.0.1:8080/SessionMysql.php?tests=4&locking=true"
