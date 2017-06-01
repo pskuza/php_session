@@ -49,22 +49,26 @@ class session extends SessionHandler
         return true;
     }
 
-    public function read($id)
+    public function waitforlock()
     {
         //check if we have locking enabled
         if ($this->session_locking) {
             //check if the session is locked
             if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked")) {
                 //session is locked and something is writing to it, wait till release or session_lock_time
-                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked")) {
+                $i_t = 0;
+                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked") || $i_t >= $this->session_lock_time) {
                     //break out once we reached $session_lock_time
                     sleep(0.5);
+                    $i_t = $i_t + 0.5;
                 }
             }
         }
+    }
 
-
-
+    public function read($id)
+    {
+        $this->waitforlock();
         //use cache
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             return $this->session_cache->fetch($this->session_cache_identifier . $id);
@@ -83,6 +87,7 @@ class session extends SessionHandler
 
     public function write($id, $data)
     {
+        $this->waitforlock();
         //check if cached
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier . $id);
