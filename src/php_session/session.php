@@ -167,7 +167,7 @@ class session extends SessionHandler
         $id = session_id();
         if ($lock_session) {
             //lock the session for any reads or writes until this operation is done
-            if (!$this->per_variable_locking) {
+            if (!$this->session_locking) {
                 throw new Exception("Class was not initiated with session_locking as true.");
             } else {
                 //lock for session_lock_time seconds

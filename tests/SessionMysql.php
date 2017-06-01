@@ -11,7 +11,7 @@ $cacheDriver = new \Doctrine\Common\Cache\MemcachedCache();
 $cacheDriver->setMemcached($memcached);
 
 $db = \ParagonIE\EasyDB\Factory::create(
-    'mysql:host=127.0.0.1;dbname=dev',
+    'mysql:host=localhost;dbname=dev',
     'root',
     ''
 );
@@ -46,8 +46,8 @@ switch ($_GET['tests']) {
         //increment a session variable
         $count = $session->get('increment');
         if (!empty($count)) {
-            $new_count = $count++;
-            $session->set(['increment' => $new_count], true);
+            $count++;
+            $session->set(['increment' => $count], true);
         } else {
             $session->set(['increment' => 1], true);
         }
