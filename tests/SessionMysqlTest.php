@@ -33,5 +33,11 @@ class SessionMysqlTest extends TestCase
 
         $this->assertTrue($random_hex === $r->getBody()->getContents());
 
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=3');
+
+        $headers = $r->getHeaders();
+
+        $this->assertArrayNotHasKey('Cookie', $headers);
+
     }
 }

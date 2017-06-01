@@ -202,4 +202,15 @@ class session extends SessionHandler
         }
         return $this->db->update('sessions', ['remember_me' => $enabled], ['id' => session_id()]);
     }
+
+    public function logout()
+    {
+        $_SESSION = array();
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+        return session_destroy();
+    }
 }

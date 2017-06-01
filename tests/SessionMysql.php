@@ -32,4 +32,6 @@ switch ($_GET['tests']) {
     case 2:
         echo $session->get('tests');
         break;
+    case 3:
+        $session->logout();
 }
