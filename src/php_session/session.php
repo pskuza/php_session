@@ -17,24 +17,16 @@ class session extends SessionHandler
 
     protected $secure = true;
 
-    protected $per_variable_locking = false;
-
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null, bool $per_variable_locking = null)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null)
     {
         $this->db = $db;
 
         $this->session_cache = $session_cache;
 
-        if (!empty($cachetime)) {
-            $this->cachetime = $cachetime;
-        }
+        $this->cachetime = $cachetime;
 
         if (!is_null($secure)) {
             $this->secure = $secure;
-        }
-
-        if (!is_null($per_variable_locking)) {
-            $this->per_variable_locking = $per_variable_locking;
         }
     }
 
@@ -50,14 +42,12 @@ class session extends SessionHandler
 
     public function read($id)
     {
-        var_dump($id);
         //use cache
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             return $this->session_cache->fetch($this->session_cache_identifier . $id);
         } else {
             //try reading from db
             if ($data = $this->db->cell("SELECT data FROM sessions WHERE id = ?", $id)) {
-                var_dump("in db");
                 $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
                 return $data;
             } else {
@@ -131,7 +121,7 @@ class session extends SessionHandler
         return base64_encode(random_bytes(48));
     }
 
-    public function startsession(int $lifetime = null, string $path = null, string $domain = null)
+    public function start(int $lifetime = null, string $path = null, string $domain = null)
     {
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams["lifetime"], "/", $cookieParams["domain"], $this->secure, true);
@@ -142,5 +132,28 @@ class session extends SessionHandler
     public function regenerate_id()
     {
         session_regenerate_id(true);
+    }
+
+    public function set(array $options, bool $lock_variables = false)
+    {
+        if ($lock_variables) {
+            //lock the variable for any reads or writes until this operation is done
+            die("not implemented");
+        } else {
+            //dont lock
+            foreach ($options as $k => $v) {
+                $_SESSION[$k] = $v;
+            }
+        }
+    }
+
+    public function remember_me(bool $enabled)
+    {
+        if ($enabled) {
+            $enabled = 1;
+        } else {
+            $enabled = 0;
+        }
+        $this->db->update('sessions', ['remember_me' => $enabled], ['id' => session_id()]);
     }
 }

@@ -20,7 +20,7 @@ $session = new php_session\session($db, $cacheDriver, 0, false);
 
 session_set_save_handler($session, true);
 
-$session->startsession();
+$session->start();
 
 switch ($_GET['tests']) {
     case 0:
