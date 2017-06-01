@@ -34,7 +34,7 @@ class session extends SessionHandler
             $this->secure = $secure;
         }
 
-        if (!is_null($encryption)) {
+        if ($encryption) {
             //check key ...
             $this->encryption = $encryption;
         }
@@ -136,12 +136,12 @@ class session extends SessionHandler
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams["lifetime"], "/", $cookieParams["domain"], $this->secure, true);
         session_name("id");
-        session_start();
+        return session_start();
     }
 
     public function regenerate_id()
     {
-        session_regenerate_id(true);
+        return session_regenerate_id(true);
     }
 
     public function set(array $options, bool $lock_variables = false)
@@ -154,6 +154,7 @@ class session extends SessionHandler
             foreach ($options as $k => $v) {
                 $_SESSION[$k] = $v;
             }
+            return true;
         }
     }
 
@@ -164,6 +165,6 @@ class session extends SessionHandler
         } else {
             $enabled = 0;
         }
-        $this->db->update('sessions', ['remember_me' => $enabled], ['id' => session_id()]);
+        return $this->db->update('sessions', ['remember_me' => $enabled], ['id' => session_id()]);
     }
 }
