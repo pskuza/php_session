@@ -49,7 +49,7 @@ class session extends SessionHandler
         return true;
     }
 
-    public function waitforlock()
+    public function waitforlock($id)
     {
         //check if we have locking enabled
         if ($this->session_locking) {
@@ -68,7 +68,7 @@ class session extends SessionHandler
 
     public function read($id)
     {
-        $this->waitforlock();
+        $this->waitforlock($id);
         //use cache
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             return $this->session_cache->fetch($this->session_cache_identifier . $id);
@@ -87,7 +87,7 @@ class session extends SessionHandler
 
     public function write($id, $data)
     {
-        $this->waitforlock();
+        $this->waitforlock($id);
         //check if cached
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier . $id);
@@ -164,6 +164,7 @@ class session extends SessionHandler
 
     public function set(array $options, bool $lock_session = false)
     {
+        $id = session_id();
         if ($lock_session) {
             //lock the session for any reads or writes until this operation is done
             if (!$this->per_variable_locking) {
