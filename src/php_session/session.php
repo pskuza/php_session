@@ -188,8 +188,8 @@ class session extends SessionHandler
 
     public function get($value = null)
     {
-        if (!is_null($value)) {
-            return $_SESSION[$value];
+        if (!$return = is_null($_SESSION[$value])) {
+            return $return;
         }
         return $_SESSION;
     }
