@@ -4,6 +4,7 @@
 namespace php_session;
 
 use SessionHandler;
+use AESGCM\AESGCM;
 
 class session extends SessionHandler
 {
@@ -17,7 +18,11 @@ class session extends SessionHandler
 
     protected $secure = true;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null)
+    protected $encryption = false;
+
+    protected $encryption_key = null;
+
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null, bool $encryption = null, string $encryption_key)
     {
         $this->db = $db;
 
@@ -27,6 +32,11 @@ class session extends SessionHandler
 
         if (!is_null($secure)) {
             $this->secure = $secure;
+        }
+
+        if (!is_null($encryption)) {
+            //check key ...
+            $this->encryption = $encryption;
         }
     }
 
