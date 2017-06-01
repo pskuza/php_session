@@ -16,13 +16,15 @@ $db = \ParagonIE\EasyDB\Factory::create(
     ''
 );
 
-switch ($_GET['locking']) {
-    case 'true':
-        $session = new php_session\session($db, $cacheDriver, 0, false, true);
-        break;
-    case 'false':
-        $session = new php_session\session($db, $cacheDriver, 0, false);
-        break;
+if (isset($_GET['locking'])) {
+    switch ($_GET['locking']) {
+        case 'true':
+            $session = new php_session\session($db, $cacheDriver, 0, false, true);
+            break;
+        case 'false':
+            $session = new php_session\session($db, $cacheDriver, 0, false);
+            break;
+    }
 }
 
 session_set_save_handler($session, true);
