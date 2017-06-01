@@ -15,7 +15,7 @@ class SessionMysqlTest extends TestCase
         sleep(10);
         $client = new GuzzleHttp\Client(['cookies' => true]);
 
-        $random_hex = bin2hex(random_bytes(8))
+        $random_hex = bin2hex(random_bytes(8));
 
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0&random=' . $random_hex);
 
