@@ -1,4 +1,3 @@
-
 #php_session [![Build Status](https://travis-ci.org/pskuza/php_session.svg?branch=master)](https://travis-ci.org/pskuza/php_session)
 
 * Uses PDO for the session database either Mysql, Postgres, Sqlite. (https://github.com/paragonie/easydb) 

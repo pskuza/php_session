@@ -185,6 +185,14 @@ class session extends SessionHandler
         }
     }
 
+    public function get($value = null)
+    {
+        if (!is_null($value)) {
+            return $_SESSION[$value];
+        }
+        return $_SESSION;
+    }
+
     public function remember_me(bool $enabled)
     {
         if ($enabled) {
