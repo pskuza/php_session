@@ -44,6 +44,7 @@ class SessionMysqlTest extends TestCase
         $this->assertArrayNotHasKey('Cookie', $headers);
 
         $output = shell_exec('bash tests/locked_increment_test.sh');
-        var_dump($output);
+
+        $this->assertTrue($output === "10");
     }
 }
