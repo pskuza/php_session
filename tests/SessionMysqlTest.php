@@ -45,6 +45,6 @@ class SessionMysqlTest extends TestCase
 
         $output = shell_exec('bash tests/locked_increment_test.sh');
 
-        $this->assertTrue($output === "10");
+        $this->assertEquals($output, "10");
     }
 }
