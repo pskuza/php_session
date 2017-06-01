@@ -1,3 +1,4 @@
+
 #php_session [![Build Status](https://travis-ci.org/pskuza/php_session.svg?branch=master)](https://travis-ci.org/pskuza/php_session)
 
 * Uses PDO for the session database either Mysql, Postgres, Sqlite. (https://github.com/paragonie/easydb) 
@@ -19,7 +20,7 @@ php composer.phar require "pskuza/php_session"
 
 require('vendor/autoload.php');
 
-use pskuza\php_session;
+use php_session\session;
 
 //for memcached as cache
 //check doctrine/cache on how to use the others
@@ -52,5 +53,18 @@ var_dump($_SESSION);
 //regenrate session id
 //you should do this when the user privilege changes (not logged in => logged in or otherwise)
 $session->regenerate_id();
+
+//terminate the session (logout)
+
+//unset all session values 
+$_SESSION = array();
+
+//get session parameters 
+$params = session_get_cookie_params();
+
+//delete the actual cookie. 
+setcookie(session_name(),'', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+//destroy session
+session_destroy();
 
 ```
