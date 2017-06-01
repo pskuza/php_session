@@ -25,6 +25,9 @@ if (isset($_GET['locking'])) {
             $session = new php_session\session($db, $cacheDriver, 0, false);
             break;
     }
+} else {
+
+    $session = new php_session\session($db, $cacheDriver, 0, false, true);
 }
 
 session_set_save_handler($session, true);
