@@ -15,7 +15,9 @@ class SessionMysqlTest extends TestCase
         sleep(10);
         $client = new GuzzleHttp\Client(['cookies' => true]);
 
-        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0');
+        $random_hex = bin2hex(random_bytes(8))
+
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0&random=' . $random_hex);
 
         $headers = $r->getHeaders();
 
@@ -26,6 +28,10 @@ class SessionMysqlTest extends TestCase
         $headers_new = $r->getHeaders();
 
         $this->assertTrue($headers['Set-Cookie'] !== $headers_new['Set-Cookie']);
+
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=2');
+
+        $this->assertTrue($random_hex === $r->getBody()->getContents());
 
     }
 }

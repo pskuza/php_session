@@ -24,12 +24,12 @@ $session->start();
 
 switch ($_GET['tests']) {
     case 0:
-        var_dump($_SESSION);
+        $session->set(['tests' => $_GET['random']]);
         break;
     case 1:
         $session->regenerate_id();
         break;
     case 2:
-        die("some other stuff");
+        echo $session->get('tests');
         break;
 }
