@@ -17,7 +17,11 @@ class session extends SessionHandler
 
     protected $secure = true;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null)
+    protected $session_locking = false;
+
+    protected $session_lock_time = 3;
+
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
     {
         $this->db = $db;
 
@@ -27,6 +31,11 @@ class session extends SessionHandler
 
         if (!is_null($secure)) {
             $this->secure = $secure;
+        }
+
+        //need to be true for $this->set(['test' => 1], true)
+        if (!is_null($session_locking)) {
+            $this->session_locking = $session_locking;
         }
     }
 
@@ -42,6 +51,20 @@ class session extends SessionHandler
 
     public function read($id)
     {
+        //check if we have locking enabled
+        if ($this->session_locking) {
+            //check if the session is locked
+            if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked")) {
+                //session is locked and something is writing to it, wait till release or session_lock_time
+                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked"){
+                sleep(0.5);
+                //break out once we reached $session_lock_time
+            }
+            }
+        }
+
+
+
         //use cache
         if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
             return $this->session_cache->fetch($this->session_cache_identifier . $id);
@@ -134,11 +157,20 @@ class session extends SessionHandler
         return session_regenerate_id(true);
     }
 
-    public function set(array $options, bool $lock_variables = false)
+    public function set(array $options, bool $lock_session = false)
     {
-        if ($lock_variables) {
-            //lock the variable for any reads or writes until this operation is done
-            die("not implemented");
+        if ($lock_session) {
+            //lock the session for any reads or writes until this operation is done
+            if (!$this->per_variable_locking) {
+                throw new Exception("Class was not initiated with session_locking as true.");
+            } else {
+                //lock for session_lock_time seconds
+                $this->session_cache->save($this->session_cache_identifier . $id . "_lock", true, $this->session_lock_time);
+                foreach ($options as $k => $v) {
+                    $_SESSION[$k] = $v;
+                }
+                $this->session_cache->delete($this->session_cache_identifier . $id . "_lock");
+            }
         } else {
             //dont lock
             foreach ($options as $k => $v) {
