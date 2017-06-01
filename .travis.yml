@@ -6,6 +6,10 @@ php:
 services:
     - memcached
     - mysql
+addons:
+  apt:
+    packages:
+    - parallel
 before_install:
     echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 install:

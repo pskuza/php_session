@@ -16,7 +16,14 @@ $db = \ParagonIE\EasyDB\Factory::create(
     ''
 );
 
-$session = new php_session\session($db, $cacheDriver, 0, false);
+switch ($_GET['locking']) {
+    case 'true':
+        $session = new php_session\session($db, $cacheDriver, 0, false, true);
+        break;
+    case 'false':
+        $session = new php_session\session($db, $cacheDriver, 0, false);
+        break;
+}
 
 session_set_save_handler($session, true);
 
@@ -34,4 +41,14 @@ switch ($_GET['tests']) {
         break;
     case 3:
         $session->logout();
+        break;
+    case 4:
+        //increment a session variable
+        if (!empty($count = $session->get('increment'))) {
+            $session->set(['increment' => $count++], true);
+        }
+        break;
+    case 5:
+        echo $session->get('increment');
+        break;
 }
