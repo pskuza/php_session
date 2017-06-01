@@ -59,8 +59,8 @@ class session extends SessionHandler
                 $i_t = 0;
                 while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked") || $i_t >= $this->session_lock_time) {
                     //break out once we reached $session_lock_time
-                    sleep(0.5);
-                    $i_t = $i_t + 0.5;
+                    sleep(0.1);
+                    $i_t = $i_t + 0.1;
                 }
             }
         }
