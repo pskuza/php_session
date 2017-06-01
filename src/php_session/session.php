@@ -189,7 +189,10 @@ class session extends SessionHandler
     public function get($value = null)
     {
         if (!is_null($value)) {
-            return $_SESSION[$value];
+            if (array_key_exists($value, $_SESSION)) {
+                return $_SESSION[$value];
+            }
+            return false;
         }
         return $_SESSION;
     }
