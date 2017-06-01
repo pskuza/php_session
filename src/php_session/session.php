@@ -17,10 +17,6 @@ class session extends SessionHandler
 
     protected $secure = true;
 
-    protected $encryption = false;
-
-    protected $encryption_key = null;
-
     public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null)
     {
         $this->db = $db;
