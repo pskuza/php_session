@@ -1,4 +1,5 @@
 <?php
+
 //declare(strict_types=1);
 
 namespace php_session;
@@ -11,7 +12,7 @@ class session extends SessionHandler
 
     protected $session_cache = null;
 
-    protected $session_cache_identifier = "php_session_";
+    protected $session_cache_identifier = 'php_session_';
 
     protected $cachetime;
 
@@ -53,18 +54,20 @@ class session extends SessionHandler
     {
         $this->waitforlock($id);
         //use cache
-        if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
-            return $this->session_cache->fetch($this->session_cache_identifier . $id);
+        if ($this->session_cache->contains($this->session_cache_identifier.$id)) {
+            return $this->session_cache->fetch($this->session_cache_identifier.$id);
         } else {
             //try reading from db
-            if ($data = $this->db->cell("SELECT data FROM sessions WHERE id = ?", $id)) {
-                $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+            if ($data = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
+                $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
+
                 return $data;
             } else {
                 //return session name for session_regenerate_id
                 return session_name();
             }
         }
+
         return false;
     }
 
@@ -73,10 +76,10 @@ class session extends SessionHandler
         //check if we have locking enabled
         if ($this->session_locking) {
             //check if the session is locked
-            if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_lock")) {
+            if ($this->session_cache->fetch($this->session_cache_identifier.$id.'_lock')) {
                 //session is locked and something is writing to it, wait till release or session_lock_time
                 $i_t = 0;
-                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_lock") || $i_t >= $this->session_lock_time) {
+                while ($this->session_cache->fetch($this->session_cache_identifier.$id.'_lock') || $i_t >= $this->session_lock_time) {
                     //break out once we reached $session_lock_time
                     sleep(0.1);
                     $i_t = $i_t + 0.1;
@@ -89,8 +92,8 @@ class session extends SessionHandler
     {
         $this->waitforlock($id);
         //check if cached
-        if ($this->session_cache->contains($this->session_cache_identifier . $id)) {
-            $data_cache = $this->session_cache->fetch($this->session_cache_identifier . $id);
+        if ($this->session_cache->contains($this->session_cache_identifier.$id)) {
+            $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
             if (!$this->equalstrings($data_cache, $data)) {
                 //update
                 if (strpos($data, 'php_session_remember_me|i:1') !== false) {
@@ -99,7 +102,8 @@ class session extends SessionHandler
                     $remember_me = 0;
                 }
                 $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
-                return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+
+                return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
@@ -108,21 +112,23 @@ class session extends SessionHandler
             } else {
                 $remember_me = 0;
             }
-            if ($data_cache = $this->db->cell("SELECT data FROM sessions WHERE id = ?", $id)) {
+            if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
                 if (!$this->equalstrings($data_cache, $data)) {
                     //update
                     $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
-                    return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+
+                    return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
                 }
             } else {
                 //not in cache and not in db (first write)
                 $this->db->insert('sessions', [
-                    'id' => $id,
-                    'data' => $data,
-                    'timestamp' => time(),
-                    'remember_me' => $remember_me
+                    'id'          => $id,
+                    'data'        => $data,
+                    'timestamp'   => time(),
+                    'remember_me' => $remember_me,
                 ]);
-                return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
+
+                return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         }
 
@@ -137,7 +143,8 @@ class session extends SessionHandler
     public function destroy($id)
     {
         $this->db->delete('sessions', ['id' => $id]);
-        return $this->session_cache->delete($this->session_cache_identifier . $id);
+
+        return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
     public function gc($max)
@@ -146,12 +153,13 @@ class session extends SessionHandler
         $this->db->beginTransaction();
         foreach ($rows as $row) {
             //delete from cache and db
-            $this->session_cache->delete($this->session_cache_identifier . $row['id']);
+            $this->session_cache->delete($this->session_cache_identifier.$row['id']);
             $this->db->delete('sessions', [
-                'id' => $row['id']
+                'id' => $row['id'],
             ]);
         }
         $this->db->commit();
+
         return true;
     }
 
@@ -163,8 +171,9 @@ class session extends SessionHandler
     public function start(int $lifetime = null, string $path = null, string $domain = null)
     {
         $cookieParams = session_get_cookie_params();
-        session_set_cookie_params($cookieParams["lifetime"], "/", $cookieParams["domain"], $this->secure, true);
-        session_name("id");
+        session_set_cookie_params($cookieParams['lifetime'], '/', $cookieParams['domain'], $this->secure, true);
+        session_name('id');
+
         return session_start();
     }
 
@@ -179,20 +188,21 @@ class session extends SessionHandler
         if ($lock_session) {
             //lock the session for any reads or writes until this operation is done
             if (!$this->session_locking) {
-                throw new Exception("Class was not initiated with session_locking as true.");
+                throw new Exception('Class was not initiated with session_locking as true.');
             } else {
                 //lock for session_lock_time seconds
-                $this->session_cache->save($this->session_cache_identifier . $id . "_lock", true, $this->session_lock_time);
+                $this->session_cache->save($this->session_cache_identifier.$id.'_lock', true, $this->session_lock_time);
                 foreach ($options as $k => $v) {
                     $_SESSION[$k] = $v;
                 }
-                $this->session_cache->delete($this->session_cache_identifier . $id . "_lock");
+                $this->session_cache->delete($this->session_cache_identifier.$id.'_lock');
             }
         } else {
             //dont lock
             foreach ($options as $k => $v) {
                 $_SESSION[$k] = $v;
             }
+
             return true;
         }
     }
@@ -203,8 +213,10 @@ class session extends SessionHandler
             if (array_key_exists($value, $_SESSION)) {
                 return $_SESSION[$value];
             }
+
             return false;
         }
+
         return $_SESSION;
     }
 
@@ -215,17 +227,19 @@ class session extends SessionHandler
         } else {
             $enabled = 0;
         }
+
         return $this->set(['php_session_remember_me' => $enabled]);
     }
 
     public function logout()
     {
-        $_SESSION = array();
+        $_SESSION = [];
         $params = session_get_cookie_params();
         setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
+            $params['path'], $params['domain'],
+            $params['secure'], $params['httponly']
         );
+
         return session_destroy();
     }
 }
