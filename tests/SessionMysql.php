@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require('../vendor/autoload.php');
+require '../vendor/autoload.php';
 
 use php_session\session;
 
@@ -62,7 +62,7 @@ switch ($_GET['tests']) {
         $session->remember_me(true);
         break;
     case 7:
-        echo $db->cell("SELECT remember_me FROM sessions WHERE id = ?", session_id());
+        echo $db->cell('SELECT remember_me FROM sessions WHERE id = ?', session_id());
         break;
     case 8:
         $session->remember_me(false);

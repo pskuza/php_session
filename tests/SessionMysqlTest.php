@@ -1,9 +1,7 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-
 use php_session\session;
-use GuzzleHttp\Client;
+use PHPUnit\Framework\TestCase;
 
 class SessionMysqlTest extends TestCase
 {
@@ -17,7 +15,7 @@ class SessionMysqlTest extends TestCase
 
         $random_hex = bin2hex(random_bytes(8));
 
-        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0&locking=false&random=' . $random_hex);
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=0&locking=false&random='.$random_hex);
 
         $headers = $r->getHeaders();
 
@@ -45,18 +43,18 @@ class SessionMysqlTest extends TestCase
 
         //does locking work
         $output = shell_exec('bash tests/locked_increment_test.sh');
-        $this->assertEquals("20", $output, 'Session locking feature did not lock correctly.');
+        $this->assertEquals('20', $output, 'Session locking feature did not lock correctly.');
 
         //does remember_me work
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=6&locking=false');
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=7&locking=false');
 
-        $this->assertEquals("1", $r->getBody()->getContents(), 'Remember me was not set to 1 in DB.');
+        $this->assertEquals('1', $r->getBody()->getContents(), 'Remember me was not set to 1 in DB.');
 
         //does now setting remember me to 0 work
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=8&locking=false');
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=7&locking=false');
 
-        $this->assertEquals("0", $r->getBody()->getContents(), 'Remember me was not set to 0 in DB.');
+        $this->assertEquals('0', $r->getBody()->getContents(), 'Remember me was not set to 0 in DB.');
     }
 }
