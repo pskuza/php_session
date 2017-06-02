@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #easy way I guess sind parallel did not want to work for me
-for i in {1..10};
+for i in {1..20};
 do
     curl -s -c /tmp/cookie.jar -b /tmp/cookie.jar "http://127.0.0.1:8080/SessionMysql.php?tests=4&locking=true" &
 done

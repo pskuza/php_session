@@ -73,10 +73,10 @@ class session extends SessionHandler
         //check if we have locking enabled
         if ($this->session_locking) {
             //check if the session is locked
-            if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked")) {
+            if ($this->session_cache->fetch($this->session_cache_identifier . $id . "_lock")) {
                 //session is locked and something is writing to it, wait till release or session_lock_time
                 $i_t = 0;
-                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_locked") || $i_t >= $this->session_lock_time) {
+                while ($this->session_cache->fetch($this->session_cache_identifier . $id . "_lock") || $i_t >= $this->session_lock_time) {
                     //break out once we reached $session_lock_time
                     sleep(0.1);
                     $i_t = $i_t + 0.1;
