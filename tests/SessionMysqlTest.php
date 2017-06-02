@@ -49,7 +49,7 @@ class SessionMysqlTest extends TestCase
 
         //does remember_me work
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=6&locking=false');
-
+        var_dump($r->getBody()->getContents());
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=7&locking=false');
 
         $this->assertEquals($r->getBody()->getContents(), '1', 'Remember me was not set in DB.');
