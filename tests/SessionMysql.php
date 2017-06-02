@@ -64,4 +64,7 @@ switch ($_GET['tests']) {
     case 7:
         echo $db->cell("SELECT remember_me FROM sessions WHERE id = ?", session_id());
         break;
+    case 8:
+        $session->remember_me(false);
+        break;
 }
