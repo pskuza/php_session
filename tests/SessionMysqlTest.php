@@ -43,8 +43,15 @@ class SessionMysqlTest extends TestCase
         //does logout work
         $this->assertArrayNotHasKey('Cookie', $headers, 'Logout did not work.');
 
+        //does locking work
         $output = shell_exec('bash tests/locked_increment_test.sh');
-
         $this->assertEquals($output, "20", 'Session locking feature did not lock correctly.');
+
+        //does remember_me work
+        $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=6&locking=false');
+
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=7&locking=false');
+
+        $this->assertEquals($r->getBody()->getContents(), '1', 'Remember me was not set in DB.');
     }
 }

@@ -55,4 +55,10 @@ switch ($_GET['tests']) {
     case 5:
         echo $session->get('increment');
         break;
+    case 6:
+        $session->remember_me(true);
+        break;
+    case 7:
+        echo $db->cell("SELECT remember_me FROM sessions WHERE id = ?", session_id());
+        break;
 }
