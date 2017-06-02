@@ -1,4 +1,4 @@
-#php_session
+# php_session
 
 [![Build Status](https://travis-ci.org/pskuza/php_session.svg?branch=master)](https://travis-ci.org/pskuza/php_session)
 
