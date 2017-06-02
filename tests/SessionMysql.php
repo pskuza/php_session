@@ -45,11 +45,11 @@ switch ($_GET['tests']) {
     case 4:
         //increment a session variable
         $count = $session->get('increment');
-        if (!empty($count)) {
+        if (empty($count)) {
+            $session->set(['increment' => 1], true);
+        } else {
             $count++;
             $session->set(['increment' => $count], true);
-        } else {
-            $session->set(['increment' => 1], true);
         }
         break;
     case 5:
