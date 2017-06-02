@@ -132,15 +132,15 @@ class session extends SessionHandler
     public function gc($max)
     {
         $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
+        $this->db->beginTransaction();
         foreach ($rows as $row) {
             //delete from cache and db
             $this->session_cache->delete($this->session_cache_identifier . $row['id']);
-            $this->db->beginTransaction();
             $this->db->delete('sessions', [
                 'id' => $row['id']
             ]);
-            $this->db->commit();
         }
+        $this->db->commit();
         return true;
     }
 
@@ -204,6 +204,8 @@ class session extends SessionHandler
         } else {
             $enabled = 0;
         }
+        //force write, since this was trying to update before the session was inserted
+        $this->write(session_id(), "");
         return $this->db->update('sessions', ['remember_me' => $enabled], ['id' => session_id()]);
     }
 
