@@ -56,9 +56,9 @@ switch ($_GET['tests']) {
         echo $session->get('increment');
         break;
     case 6:
-        var_dump($session->remember_me(true));
+        $session->remember_me(true);
         break;
     case 7:
-        var_dump($db->cell("SELECT remember_me FROM sessions WHERE id = ?", session_id()));
+        echo $db->cell("SELECT remember_me FROM sessions WHERE id = ?", session_id());
         break;
 }

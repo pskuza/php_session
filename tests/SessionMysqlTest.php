@@ -45,7 +45,7 @@ class SessionMysqlTest extends TestCase
 
         //does locking work
         $output = shell_exec('bash tests/locked_increment_test.sh');
-        $this->assertEquals($output, "20", 'Session locking feature did not lock correctly.');
+        $this->assertEquals("20", $output, 'Session locking feature did not lock correctly.');
 
         //does remember_me work
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysql.php?tests=6&locking=false');
