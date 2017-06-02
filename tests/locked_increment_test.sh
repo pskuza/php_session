@@ -11,4 +11,8 @@ wait
 #get result
 curl -s -c cookie.jar -b cookie.jar "http://127.0.0.1:8080/SessionMysql.php?tests=5&locking=true"
 
+#debug dump database
+
+mysql -u root dev -e "Select * FROM sessions;"
+
 exit 0
