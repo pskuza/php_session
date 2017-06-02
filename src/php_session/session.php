@@ -93,15 +93,25 @@ class session extends SessionHandler
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier . $id);
             if (!$this->equalstrings($data_cache, $data)) {
                 //update
-                $this->db->update('sessions', ['data' => $data], ['id' => $id]);
+                if (strpos($data, 'php_session_remember_me|i:1') !== false) {
+                    $remember_me = 1;
+                } else {
+                    $remember_me = 0;
+                }
+                $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
                 return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
+            if (strpos($data, 'php_session_remember_me|i:1') !== false) {
+                $remember_me = 1;
+            } else {
+                $remember_me = 0;
+            }
             if ($data_cache = $this->db->cell("SELECT data FROM sessions WHERE id = ?", $id)) {
                 if (!$this->equalstrings($data_cache, $data)) {
                     //update
-                    $this->db->update('sessions', ['data' => $data], ['id' => $id]);
+                    $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
                     return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
                 }
             } else {
@@ -109,7 +119,8 @@ class session extends SessionHandler
                 $this->db->insert('sessions', [
                     'id' => $id,
                     'data' => $data,
-                    'timestamp' => time()
+                    'timestamp' => time(),
+                    'remember_me' => $remember_me
                 ]);
                 return $this->session_cache->save($this->session_cache_identifier . $id, $data, $this->cachetime);
             }
@@ -204,9 +215,7 @@ class session extends SessionHandler
         } else {
             $enabled = 0;
         }
-        //force write, since this was trying to update before the session was inserted
-        $this->write(session_id(), "");
-        return $this->db->update('sessions', ['remember_me' => $enabled], ['id' => session_id()]);
+        return $this->set(['php_session_remember_me' => $enabled]);
     }
 
     public function logout()
