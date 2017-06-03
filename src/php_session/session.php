@@ -165,7 +165,7 @@ class session extends SessionHandler
         return true;
     }
 
-    public function create_sid(): string
+    public function create_sid()
     {
         return base64_encode(random_bytes(48));
     }
@@ -179,7 +179,7 @@ class session extends SessionHandler
         return session_start();
     }
 
-    public function regenerate_id(): bool
+    public function regenerate_id()
     {
         return session_regenerate_id(true);
     }
