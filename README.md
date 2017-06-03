@@ -2,11 +2,12 @@
 
 [![Build Status](https://travis-ci.org/pskuza/php_session.svg?branch=master)](https://travis-ci.org/pskuza/php_session)
 
-* Uses PDO for the session database either Mysql, Postgres, Sqlite. (https://github.com/paragonie/easydb) 
+* Uses PDO for the session database either Mysql, Postgres or Sqlite. (https://github.com/paragonie/easydb) 
 * Caches everything in either APC, Memcache, Memcached, Xcache or Redis. (https://github.com/doctrine/cache)
 * Session locking, if you want to guarantee session data consistency (A counter that does not revert with multiple async requests). 
-* Remember me future for sessions that do not expire. 
+* Remember me future for sessions that will not get garbage collected. 
 * 48 bytes of entropy for the session id.
+* CSRF-Token generation and checking feature.
 
 
 ## Install
