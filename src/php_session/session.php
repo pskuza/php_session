@@ -42,12 +42,12 @@ class session extends SessionHandler
         }
     }
 
-    public function open($save_path = null, $id = null)
+    public function open($save_path = null, $id = null): bool
     {
         return true;
     }
 
-    public function close()
+    public function close(): bool
     {
         return true;
     }
@@ -73,7 +73,7 @@ class session extends SessionHandler
         return false;
     }
 
-    public function waitforlock($id)
+    public function waitforlock($id): bool
     {
         //check if we have locking enabled
         if ($this->session_locking) {
@@ -90,7 +90,7 @@ class session extends SessionHandler
         }
     }
 
-    public function write($id, $data)
+    public function write($id, $data): bool
     {
         $this->waitforlock($id);
         //check if cached
@@ -137,19 +137,19 @@ class session extends SessionHandler
         return true;
     }
 
-    public function equalstrings(string $olddata, string $newdata)
+    public function equalstrings(string $olddata, string $newdata): bool
     {
         return $olddata === $newdata;
     }
 
-    public function destroy($id)
+    public function destroy($id): bool
     {
         $this->db->delete('sessions', ['id' => $id]);
 
         return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
-    public function gc($max)
+    public function gc($max): bool
     {
         $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
         $this->db->beginTransaction();
@@ -165,12 +165,12 @@ class session extends SessionHandler
         return true;
     }
 
-    public function create_sid()
+    public function create_sid(): string
     {
         return base64_encode(random_bytes(48));
     }
 
-    public function start(int $lifetime = null, string $path = null, string $domain = null)
+    public function start(int $lifetime = null, string $path = null, string $domain = null): bool
     {
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams['lifetime'], '/', $cookieParams['domain'], $this->secure, true);
@@ -179,12 +179,12 @@ class session extends SessionHandler
         return session_start();
     }
 
-    public function regenerate_id()
+    public function regenerate_id(): bool
     {
         return session_regenerate_id(true);
     }
 
-    public function set(array $options, bool $lock_session = false)
+    public function set(array $options, bool $lock_session = false): bool
     {
         $id = session_id();
         if ($lock_session) {
@@ -197,7 +197,7 @@ class session extends SessionHandler
                 foreach ($options as $k => $v) {
                     $_SESSION[$k] = $v;
                 }
-                $this->session_cache->delete($this->session_cache_identifier.$id.'_lock');
+                return $this->session_cache->delete($this->session_cache_identifier . $id . '_lock');
             }
         } else {
             //dont lock
@@ -207,6 +207,7 @@ class session extends SessionHandler
 
             return true;
         }
+        return false;
     }
 
     public function get($value = null)
@@ -222,7 +223,7 @@ class session extends SessionHandler
         return $_SESSION;
     }
 
-    public function remember_me(bool $enabled)
+    public function remember_me(bool $enabled): bool
     {
         if ($enabled) {
             $enabled = 1;
@@ -233,7 +234,7 @@ class session extends SessionHandler
         return $this->set(['php_session_remember_me' => $enabled]);
     }
 
-    public function logout()
+    public function logout(): bool
     {
         $_SESSION = [];
         $params = session_get_cookie_params();
@@ -245,12 +246,12 @@ class session extends SessionHandler
         return session_destroy();
     }
 
-    public function generate_csrf()
+    public function generate_csrf(): bool
     {
         return $this->set(['php_session_csrf' => base64_encode(random_bytes($this->csrf_random_bytes_count))]);
     }
 
-    public function check_csrf(string $token)
+    public function check_csrf(string $token): bool
     {
         return hash_equals($this->get('php_session_csrf'), $token);
     }
