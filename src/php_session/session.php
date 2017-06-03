@@ -249,4 +249,9 @@ class session extends SessionHandler
     {
         return $this->set(['php_session_csrf' => base64_encode(random_bytes($this->csrf_random_bytes_count))]);
     }
+
+    public function check_csrf(string $token)
+    {
+        return hash_equals($this->get('php_session_csrf'), $token);
+    }
 }
