@@ -42,12 +42,12 @@ class session extends SessionHandler
         }
     }
 
-    public function open($save_path = null, $id = null): bool
+    public function open($save_path = null, $id = null)
     {
         return true;
     }
 
-    public function close(): bool
+    public function close()
     {
         return true;
     }
@@ -73,7 +73,7 @@ class session extends SessionHandler
         return false;
     }
 
-    public function waitforlock($id): bool
+    public function waitforlock($id)
     {
         //check if we have locking enabled
         if ($this->session_locking) {
@@ -90,7 +90,7 @@ class session extends SessionHandler
         }
     }
 
-    public function write($id, $data): bool
+    public function write($id, $data)
     {
         $this->waitforlock($id);
         //check if cached
@@ -137,19 +137,19 @@ class session extends SessionHandler
         return true;
     }
 
-    public function equalstrings(string $olddata, string $newdata): bool
+    public function equalstrings(string $olddata, string $newdata)
     {
         return $olddata === $newdata;
     }
 
-    public function destroy($id): bool
+    public function destroy($id)
     {
         $this->db->delete('sessions', ['id' => $id]);
 
         return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
-    public function gc($max): bool
+    public function gc($max)
     {
         $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
         $this->db->beginTransaction();
@@ -184,7 +184,7 @@ class session extends SessionHandler
         return session_regenerate_id(true);
     }
 
-    public function set(array $options, bool $lock_session = false): bool
+    public function set(array $options, bool $lock_session = false)
     {
         $id = session_id();
         if ($lock_session) {
@@ -223,7 +223,7 @@ class session extends SessionHandler
         return $_SESSION;
     }
 
-    public function remember_me(bool $enabled): bool
+    public function remember_me(bool $enabled)
     {
         if ($enabled) {
             $enabled = 1;
@@ -234,7 +234,7 @@ class session extends SessionHandler
         return $this->set(['php_session_remember_me' => $enabled]);
     }
 
-    public function logout(): bool
+    public function logout()
     {
         $_SESSION = [];
         $params = session_get_cookie_params();
@@ -246,12 +246,12 @@ class session extends SessionHandler
         return session_destroy();
     }
 
-    public function generate_csrf(): bool
+    public function generate_csrf()
     {
         return $this->set(['php_session_csrf' => base64_encode(random_bytes($this->csrf_random_bytes_count))]);
     }
 
-    public function check_csrf(string $token): bool
+    public function check_csrf(string $token)
     {
         return hash_equals($this->get('php_session_csrf'), $token);
     }
