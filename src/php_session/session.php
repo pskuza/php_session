@@ -170,7 +170,7 @@ class session extends SessionHandler
         return base64_encode(random_bytes(48));
     }
 
-    public function start(int $lifetime = null, string $path = null, string $domain = null): bool
+    public function start(int $lifetime = null, string $path = null, string $domain = null)
     {
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams['lifetime'], '/', $cookieParams['domain'], $this->secure, true);
