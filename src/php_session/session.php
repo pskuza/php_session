@@ -22,6 +22,8 @@ class session extends SessionHandler
 
     protected $session_lock_time = 3;
 
+    protected $csrf_random_bytes_count = 32;
+
     public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
     {
         $this->db = $db;
@@ -241,5 +243,10 @@ class session extends SessionHandler
         );
 
         return session_destroy();
+    }
+
+    public function generate_csrf()
+    {
+        return $this->set(['php_session_csrf' => base64_encode(random_bytes($this->csrf_random_bytes_count))]);
     }
 }

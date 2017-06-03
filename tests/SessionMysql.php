@@ -31,6 +31,7 @@ switch ($_GET['locking']) {
 session_set_save_handler($session, true);
 
 $session->start();
+$session->generate_csrf();
 
 switch ($_GET['tests']) {
     case 0:
