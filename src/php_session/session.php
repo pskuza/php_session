@@ -90,32 +90,29 @@ class session extends SessionHandler
         }
     }
 
+    public function parseremember_me($data)
+    {
+        return (int)(bool)strpos($data, 'php_session_remember_me|i:1');
+    }
+
     public function write($id, $data)
     {
         $this->waitforlock($id);
         //check if cached
         if ($this->session_cache->contains($this->session_cache_identifier.$id)) {
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
-            if (!$this->equalstrings($data_cache, $data)) {
+            if ($data_cache !=== $data) {
                 //update
-                if (strpos($data, 'php_session_remember_me|i:1') !== false) {
-                    $remember_me = 1;
-                } else {
-                    $remember_me = 0;
-                }
+                $remember_me = parseremember_me($data);
                 $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
-            if (strpos($data, 'php_session_remember_me|i:1') !== false) {
-                $remember_me = 1;
-            } else {
-                $remember_me = 0;
-            }
+            $remember_me = parseremember_me($data);
             if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
-                if (!$this->equalstrings($data_cache, $data)) {
+                if ($data_cache !== $data) {
                     //update
                     $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
@@ -135,11 +132,6 @@ class session extends SessionHandler
         }
 
         return true;
-    }
-
-    public function equalstrings(string $olddata, string $newdata)
-    {
-        return $olddata === $newdata;
     }
 
     public function destroy($id)
@@ -253,6 +245,7 @@ class session extends SessionHandler
 
     public function check_csrf(string $token)
     {
+        //we should also check for verify that the request is same origin
         return hash_equals($this->get('php_session_csrf'), $token);
     }
 }
