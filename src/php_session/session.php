@@ -101,7 +101,7 @@ class session extends SessionHandler
         //check if cached
         if ($this->session_cache->contains($this->session_cache_identifier.$id)) {
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
-            if ($data_cache !=== $data) {
+            if ($data_cache !== $data) {
                 //update
                 $remember_me = parseremember_me($data);
                 $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
