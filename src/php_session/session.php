@@ -92,7 +92,7 @@ class session extends SessionHandler
 
     public function parseremember_me($data)
     {
-        return (bool)strpos($data, 'php_session_remember_me|i:1');
+        return (int)((bool)strpos($data, 'php_session_remember_me|i:1'));
     }
 
     public function write($id, $data)
@@ -104,7 +104,7 @@ class session extends SessionHandler
             if ($data_cache !== $data) {
                 //update
                 $remember_me = parseremember_me($data);
-                $this->db->update('sessions', ['data' => $data, 'remember_me' => (int)$remember_me], ['id' => $id]);
+                $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
@@ -114,7 +114,7 @@ class session extends SessionHandler
             if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update
-                    $this->db->update('sessions', ['data' => $data, 'remember_me' => (int)$remember_me], ['id' => $id]);
+                    $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                     return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
                 }
@@ -124,7 +124,7 @@ class session extends SessionHandler
                     'id'          => $id,
                     'data'        => $data,
                     'timestamp'   => time(),
-                    'remember_me' => (int)$remember_me,
+                    'remember_me' => $remember_me,
                 ]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
@@ -218,18 +218,12 @@ class session extends SessionHandler
 
     public function remember_me(bool $enabled)
     {
-        if ($enabled) {
-            $enabled = 1;
-        } else {
-            $enabled = 0;
-        }
-
-        return $this->set(['php_session_remember_me' => $enabled]);
+        return $this->set(['php_session_remember_me' => (int)$enabled]);
     }
 
     public function logout()
     {
-        $_SESSION = [];
+        session_unset();
         $params = session_get_cookie_params();
         setcookie(session_name(), '', time() - 42000,
             $params['path'], $params['domain'],
