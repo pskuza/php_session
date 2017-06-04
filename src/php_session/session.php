@@ -92,7 +92,7 @@ class session extends SessionHandler
 
     public function parseremember_me($data)
     {
-        return (int)(bool)strpos($data, 'php_session_remember_me|i:1');
+        return (bool)strpos($data, 'php_session_remember_me|i:1');
     }
 
     public function write($id, $data)
@@ -104,7 +104,7 @@ class session extends SessionHandler
             if ($data_cache !== $data) {
                 //update
                 $remember_me = parseremember_me($data);
-                $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
+                $this->db->update('sessions', ['data' => $data, 'remember_me' => (int)$remember_me], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
@@ -114,7 +114,7 @@ class session extends SessionHandler
             if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update
-                    $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
+                    $this->db->update('sessions', ['data' => $data, 'remember_me' => (int)$remember_me], ['id' => $id]);
 
                     return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
                 }
@@ -124,7 +124,7 @@ class session extends SessionHandler
                     'id'          => $id,
                     'data'        => $data,
                     'timestamp'   => time(),
-                    'remember_me' => $remember_me,
+                    'remember_me' => (int)$remember_me,
                 ]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
@@ -199,6 +199,7 @@ class session extends SessionHandler
 
             return true;
         }
+
         return false;
     }
 
