@@ -103,14 +103,14 @@ class session extends SessionHandler
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
             if ($data_cache !== $data) {
                 //update
-                $remember_me = parseremember_me($data);
+                $remember_me = $this->parseremember_me($data);
                 $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
-            $remember_me = parseremember_me($data);
+            $remember_me = $this->parseremember_me($data);
             if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update
