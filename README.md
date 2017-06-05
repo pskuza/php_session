@@ -1,6 +1,7 @@
 # php_session
 
 [![Build Status](https://travis-ci.org/pskuza/php_session.svg?branch=master)](https://travis-ci.org/pskuza/php_session)
+[![StyleCI](https://styleci.io/repos/92591455/shield?branch=master)](https://styleci.io/repos/92591455)
 
 * Uses PDO for the session database either Mysql, Postgres or Sqlite. (https://github.com/paragonie/easydb) 
 * Caches everything in either APC, Memcache, Memcached, Xcache or Redis. (https://github.com/doctrine/cache)
