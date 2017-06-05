@@ -92,7 +92,7 @@ class session extends SessionHandler
 
     public function parseremember_me($data)
     {
-        return (int)((bool)strpos($data, 'php_session_remember_me|i:1'));
+        return (int) ((bool) strpos($data, 'php_session_remember_me|i:1'));
     }
 
     public function write($id, $data)
@@ -189,7 +189,8 @@ class session extends SessionHandler
                 foreach ($options as $k => $v) {
                     $_SESSION[$k] = $v;
                 }
-                return $this->session_cache->delete($this->session_cache_identifier . $id . '_lock');
+
+                return $this->session_cache->delete($this->session_cache_identifier.$id.'_lock');
             }
         } else {
             //dont lock
@@ -218,7 +219,7 @@ class session extends SessionHandler
 
     public function remember_me(bool $enabled)
     {
-        return $this->set(['php_session_remember_me' => (int)$enabled]);
+        return $this->set(['php_session_remember_me' => (int) $enabled]);
     }
 
     public function logout()
