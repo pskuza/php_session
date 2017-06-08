@@ -14,7 +14,7 @@ $cacheDriver = new \Doctrine\Common\Cache\RedisCache();
 $cacheDriver->setRedis($redis);
 
 $db = \ParagonIE\EasyDB\Factory::create(
-    'mysql:host=localhost;dbname=dev',
+    'mysql:host=localhost;dbname=dev_redis',
     'root',
     ''
 );

@@ -14,7 +14,7 @@ $cacheDriver = new \Doctrine\Common\Cache\MemcachedCache();
 $cacheDriver->setMemcached($memcached);
 
 $db = \ParagonIE\EasyDB\Factory::create(
-    'mysql:host=localhost;dbname=dev',
+    'mysql:host=localhost;dbname=dev_memcached',
     'root',
     ''
 );
