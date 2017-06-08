@@ -6,7 +6,7 @@ php:
 services:
     - memcached
     - mysql
-    - redis
+    - redis-server
 before_install:
     - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
