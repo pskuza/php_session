@@ -15,7 +15,7 @@ class SessionMysqlMemcachedTest extends TestCase
 
         $random_hex = bin2hex(random_bytes(8));
 
-        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlMemcached.php?tests=0&locking=false&random=' . $random_hex);
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlMemcached.php?tests=0&locking=false&random='.$random_hex);
 
         $headers = $r->getHeaders();
 

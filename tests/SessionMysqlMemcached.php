@@ -8,6 +8,7 @@ require '../vendor/autoload.php';
 use php_session\session;
 
 $memcached = new Memcached();
+$memcached->setOption(Memcached::OPT_COMPRESSION, false);
 $memcached->addServer('127.0.0.1', 11211);
 
 $cacheDriver = new \Doctrine\Common\Cache\MemcachedCache();
