@@ -7,6 +7,10 @@ services:
     - memcached
     - mysql
     - redis
+addons:
+  apt:
+    packages:
+    - apache2-utils
 before_install:
     echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 install:
