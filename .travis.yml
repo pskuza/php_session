@@ -9,9 +9,11 @@ services:
     - redis
 before_install:
     echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 install:
     - composer install
 before_script:
+    - phpenv config-rm xdebug.ini
     - curl http://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -o php-cs-fixer.phar
     - mysql -u root -e "CREATE DATABASE dev_memcached;" && mysql -u root dev_memcached < tests/mysql.sql
     - mysql -u root -e "CREATE DATABASE dev_redis;" && mysql -u root dev_redis < tests/mysql.sql
