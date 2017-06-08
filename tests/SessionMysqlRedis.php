@@ -8,7 +8,7 @@ require '../vendor/autoload.php';
 use php_session\session;
 
 $redis = new Redis();
-$redis->connect('redis_host', 6379);
+$redis->connect('127.0.0.1', 6379);
 
 $cacheDriver = new \Doctrine\Common\Cache\RedisCache();
 $cacheDriver->setRedis($redis);
