@@ -173,7 +173,8 @@ class session extends SessionHandler
 
     public function regenerate_id()
     {
-        return session_regenerate_id(true);
+        session_regenerate_id(true);
+        return session_write_close();
     }
 
     public function set(array $options, bool $lock_session = false)
