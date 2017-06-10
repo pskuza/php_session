@@ -174,6 +174,7 @@ class session extends SessionHandler
     public function regenerate_id()
     {
         session_regenerate_id(true);
+
         return session_write_close();
     }
 
