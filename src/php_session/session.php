@@ -1,6 +1,6 @@
 <?php
 
-//declare(strict_types=1);
+declare(strict_types=1);
 
 namespace php_session;
 
@@ -24,7 +24,7 @@ class session extends SessionHandler
 
     protected $csrf_random_bytes_count = 32;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db,\Doctrine\Common\Cache\CacheProvider $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
     {
         $this->db = $db;
 
@@ -42,7 +42,7 @@ class session extends SessionHandler
         }
     }
 
-    public function open(string $save_path, string $id) : bool
+    public function open($save_path, $id) : bool
     {
         return true;
     }
@@ -52,7 +52,7 @@ class session extends SessionHandler
         return true;
     }
 
-    public function read(string $id) : string
+    public function read($id) : string
     {
         $this->waitforlock($id);
         //use cache
@@ -94,7 +94,7 @@ class session extends SessionHandler
         return (int) ((bool) strpos($data, 'php_session_remember_me|i:1'));
     }
 
-    public function write(string $id, string $data) : bool
+    public function write($id, $data) : bool
     {
         $this->waitforlock($id);
         //check if cached
@@ -133,14 +133,14 @@ class session extends SessionHandler
         return true;
     }
 
-    public function destroy(string $id) : bool
+    public function destroy($id) : bool
     {
         $this->db->delete('sessions', ['id' => $id]);
 
         return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
-    public function gc(int $max) : bool
+    public function gc($max) : bool
     {
         $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
         $this->db->beginTransaction();
@@ -203,7 +203,7 @@ class session extends SessionHandler
         }
     }
 
-    public function get(string $value) : string
+    public function get(string $value)
     {
         if (array_key_exists($value, $_SESSION)) {
             return $_SESSION[$value];
