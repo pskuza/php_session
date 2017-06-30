@@ -28,6 +28,7 @@ use php_session\session;
 //for memcached as cache
 //check doctrine/cache on how to use the others
 $memcached = new Memcached();
+$memcached->setOption(Memcached::OPT_COMPRESSION, false);
 $memcached->addServer('127.0.0.1', 11211);
 $cacheDriver = new \Doctrine\Common\Cache\MemcachedCache();
 $cacheDriver->setMemcached($memcached);
@@ -59,5 +60,7 @@ $session->regenerate_id();
 
 //terminate the session (logout)
 $session->logout();
+
+//for more up to date usage see tests/SessionMysqlMemcached.php
 
 ```
