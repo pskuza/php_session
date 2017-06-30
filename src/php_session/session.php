@@ -24,7 +24,7 @@ class session extends SessionHandler
 
     protected $csrf_random_bytes_count = 32;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db,\Doctrine\Common\Cache\CacheProvider $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
     {
         $this->db = $db;
 
@@ -36,23 +36,23 @@ class session extends SessionHandler
             $this->secure = $secure;
         }
 
-        //need to be true for $this->set(['test' => 1], true)
+        //need to be true for session locking, else exception is thrown
         if (!is_null($session_locking)) {
             $this->session_locking = $session_locking;
         }
     }
 
-    public function open($save_path = null, $id = null)
+    public function open(string $save_path, string $id) : bool
     {
         return true;
     }
 
-    public function close()
+    public function close() : bool
     {
         return true;
     }
 
-    public function read($id)
+    public function read(string $id) : string
     {
         $this->waitforlock($id);
         //use cache
@@ -69,11 +69,9 @@ class session extends SessionHandler
                 return session_name();
             }
         }
-
-        return false;
     }
 
-    public function waitforlock($id)
+    public function waitforlock(string $id)
     {
         //check if we have locking enabled
         if ($this->session_locking) {
@@ -81,6 +79,7 @@ class session extends SessionHandler
             if ($this->session_cache->fetch($this->session_cache_identifier.$id.'_lock')) {
                 //session is locked and something is writing to it, wait till release or session_lock_time
                 $i_t = 0;
+                //busy wait but whatever
                 while ($this->session_cache->fetch($this->session_cache_identifier.$id.'_lock') || $i_t >= $this->session_lock_time) {
                     //break out once we reached $session_lock_time
                     sleep(0.1);
@@ -90,12 +89,12 @@ class session extends SessionHandler
         }
     }
 
-    public function parseremember_me($data)
+    public function parseremember_me(string $data) : int
     {
         return (int) ((bool) strpos($data, 'php_session_remember_me|i:1'));
     }
 
-    public function write($id, $data)
+    public function write(string $id, string $data) : bool
     {
         $this->waitforlock($id);
         //check if cached
@@ -134,14 +133,14 @@ class session extends SessionHandler
         return true;
     }
 
-    public function destroy($id)
+    public function destroy(string $id) : bool
     {
         $this->db->delete('sessions', ['id' => $id]);
 
         return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
-    public function gc($max)
+    public function gc(int $max) : bool
     {
         $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
         $this->db->beginTransaction();
@@ -157,12 +156,12 @@ class session extends SessionHandler
         return true;
     }
 
-    public function create_sid()
+    public function create_sid() : string
     {
         return base64_encode(random_bytes(48));
     }
 
-    public function start(int $lifetime = null, string $path = null, string $domain = null)
+    public function start(int $lifetime = null, string $path = null, string $domain = null) : bool
     {
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams['lifetime'], '/', $cookieParams['domain'], $this->secure, true);
@@ -178,7 +177,7 @@ class session extends SessionHandler
         return session_write_close();
     }
 
-    public function set(array $options, bool $lock_session = false)
+    public function set(array $options, bool $lock_session = false) : bool
     {
         $id = session_id();
         if ($lock_session) {
@@ -202,29 +201,23 @@ class session extends SessionHandler
 
             return true;
         }
+    }
+
+    public function get(string $value) : string
+    {
+        if (array_key_exists($value, $_SESSION)) {
+            return $_SESSION[$value];
+        }
 
         return false;
     }
 
-    public function get($value = null)
-    {
-        if (!is_null($value)) {
-            if (array_key_exists($value, $_SESSION)) {
-                return $_SESSION[$value];
-            }
-
-            return false;
-        }
-
-        return $_SESSION;
-    }
-
-    public function remember_me(bool $enabled)
+    public function remember_me(bool $enabled) : bool
     {
         return $this->set(['php_session_remember_me' => (int) $enabled]);
     }
 
-    public function logout()
+    public function logout() : bool
     {
         session_unset();
         $params = session_get_cookie_params();
@@ -236,12 +229,12 @@ class session extends SessionHandler
         return session_destroy();
     }
 
-    public function generate_csrf()
+    public function generate_csrf() : bool
     {
         return $this->set(['php_session_csrf' => base64_encode(random_bytes($this->csrf_random_bytes_count))]);
     }
 
-    public function check_csrf(string $token)
+    public function check_csrf(string $token) : bool
     {
         //we should also check for verify that the request is same origin
         return hash_equals($this->get('php_session_csrf'), $token);
