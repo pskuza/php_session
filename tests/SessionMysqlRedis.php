@@ -19,7 +19,7 @@ $db = \ParagonIE\EasyDB\Factory::create(
     ''
 );
 
-$session = new php_session\session($db, $cacheDriver, 0);
+$session = new php_session\session($db, $cacheDriver, 0, false);
 
 session_set_save_handler($session, true);
 
