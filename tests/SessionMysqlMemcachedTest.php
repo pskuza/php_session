@@ -41,10 +41,6 @@ class SessionMysqlMemcachedTest extends TestCase
         //does logout work
         $this->assertArrayNotHasKey('Cookie', $headers, 'Logout did not work.');
 
-        //does locking work
-        $output = shell_exec('bash tests/locked_increment_test_memcached.sh');
-        $this->assertEquals('20', $output, 'Session locking feature did not lock correctly.');
-
         //does remember_me work
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlMemcached.php?tests=6&locking=false');
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlMemcached.php?tests=7&locking=false');

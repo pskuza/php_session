@@ -18,13 +18,9 @@ class session extends SessionHandler
 
     protected $secure = true;
 
-    protected $session_locking = false;
-
-    protected $session_lock_time = 3;
-
     protected $csrf_random_bytes_count = 32;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, int $cachetime = 3600, bool $secure = null, bool $session_locking = null)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, int $cachetime = 3600, bool $secure = null)
     {
         $this->db = $db;
 
@@ -34,11 +30,6 @@ class session extends SessionHandler
 
         if (!is_null($secure)) {
             $this->secure = $secure;
-        }
-
-        //need to be true for session locking, else exception is thrown
-        if (!is_null($session_locking)) {
-            $this->session_locking = $session_locking;
         }
     }
 
@@ -54,7 +45,6 @@ class session extends SessionHandler
 
     public function read($id) : string
     {
-        $this->waitforlock($id);
         //use cache
         if ($this->session_cache->contains($this->session_cache_identifier.$id)) {
             return $this->session_cache->fetch($this->session_cache_identifier.$id);
@@ -71,45 +61,26 @@ class session extends SessionHandler
         }
     }
 
-    public function waitforlock(string $id)
-    {
-        //check if we have locking enabled
-        if ($this->session_locking) {
-            //check if the session is locked
-            if ($this->session_cache->fetch($this->session_cache_identifier.$id.'_lock')) {
-                //session is locked and something is writing to it, wait till release or session_lock_time
-                $i_t = 0;
-                //busy wait but whatever
-                while ($this->session_cache->fetch($this->session_cache_identifier.$id.'_lock') || $i_t >= $this->session_lock_time) {
-                    //break out once we reached $session_lock_time
-                    sleep(0.1);
-                    $i_t = $i_t + 0.1;
-                }
-            }
-        }
-    }
-
-    public function parseremember_me(string $data) : int
+    private function _parseremember_me(string $data) : int
     {
         return (int) ((bool) strpos($data, 'php_session_remember_me|i:1'));
     }
 
     public function write($id, $data) : bool
     {
-        $this->waitforlock($id);
         //check if cached
         if ($this->session_cache->contains($this->session_cache_identifier.$id)) {
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
             if ($data_cache !== $data) {
                 //update
-                $remember_me = $this->parseremember_me($data);
+                $remember_me = $this->_parseremember_me($data);
                 $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
-            $remember_me = $this->parseremember_me($data);
+            $remember_me = $this->_parseremember_me($data);
             if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update

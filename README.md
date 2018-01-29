@@ -4,8 +4,7 @@
 [![StyleCI](https://styleci.io/repos/92591455/shield?branch=master)](https://styleci.io/repos/92591455)
 
 * Uses PDO for the session database either Mysql, Postgres or Sqlite. (https://github.com/paragonie/easydb) 
-* Caches everything in either APC, Memcache, Memcached, Xcache or Redis. (https://github.com/doctrine/cache)
-* Session locking, if you want to guarantee session data consistency (A counter that does not revert with multiple async requests). 
+* Caches everything in APC, Memcache, Memcached, Xcache or Redis. (https://github.com/doctrine/cache)
 * Remember me future for sessions that will not get garbage collected. 
 * 48 bytes of entropy for the session id.
 * CSRF-Token generation and checking feature.
