@@ -54,6 +54,7 @@ class session extends SessionHandler
                 return $data;
             }
         }
+
         return session_name();
     }
 
@@ -149,6 +150,7 @@ class session extends SessionHandler
         if ($this->get($key) === $value) {
             return true;
         }
+
         return false;
     }
 
