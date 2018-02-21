@@ -158,6 +158,7 @@ class session extends SessionHandler
     public function remember_me(bool $enabled) : bool
     {
         session_write_close();
+
         return (bool) $this->db->update('sessions', ['remember_me' => (int) $enabled], ['id' => session_id()]);
     }
 
