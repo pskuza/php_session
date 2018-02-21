@@ -157,6 +157,7 @@ class session extends SessionHandler
 
     public function remember_me(bool $enabled) : bool
     {
+        var_dump("setting id: " . session_id() . " tried setting remember me to " . (int) $enabled);
         return $this->db->update('sessions', ['remember_me' => (int) $enabled], ['id' => session_id()]);
     }
 
