@@ -38,10 +38,13 @@ switch ($_GET['tests']) {
         $session->logout();
         break;
     case 4:
-        //dead
+        //force gc, should delete all sessions in db, who don't have remember_me === 1
+        ini_set('session.gc_maxlifetime', '0')
+        session_gc();
         break;
     case 5:
         //dead
+        echo $db->cell('SELECT COUNT(*) FROM sessions');
         break;
     case 6:
         $session->remember_me(true);
