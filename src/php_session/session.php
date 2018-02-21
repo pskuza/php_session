@@ -101,7 +101,7 @@ class session extends SessionHandler
 
     public function gc($maxlifetime) : bool
     {
-        $rows = $this->db->run('SELECT id FROM sessions WHERE created_at < ADDDATE(NOW(), INTERVAL -? SECOND) AND remember_me = 0', $maxlifetime);
+        $rows = $this->db->run('SELECT id FROM sessions WHERE created_at <= ADDDATE(NOW(), INTERVAL -? SECOND) AND remember_me = 0', $maxlifetime);
         $this->db->beginTransaction();
         foreach ($rows as $row) {
             //delete from cache and db
