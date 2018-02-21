@@ -39,8 +39,7 @@ switch ($_GET['tests']) {
         break;
     case 4:
         //force gc, should delete all sessions in db, who don't have remember_me === 1
-        ini_set('session.gc_maxlifetime', '0')
-        session_gc();
+        $session->gc(0);
         break;
     case 5:
         //dead
