@@ -18,7 +18,7 @@ class session extends SessionHandler
 
     protected $secure;
 
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, string $session_cache_identifier = "php_session_", int $cachetime = 3600, bool $secure = true)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, string $session_cache_identifier = 'php_session_', int $cachetime = 3600, bool $secure = true)
     {
         $this->db = $db;
 
@@ -87,9 +87,9 @@ class session extends SessionHandler
             } else {
                 //not in cache and not in db (first write)
                 $this->db->insert('sessions', [
-                    'id'          => $id,
+                    'id'                  => $id,
                     'session_data'        => $data,
-                    'remember_me' => $remember_me,
+                    'remember_me'         => $remember_me
                 ]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
@@ -143,15 +143,19 @@ class session extends SessionHandler
         return session_write_close();
     }
 
-    public function set(string $key, string $value) : bool
+    public function set(string $key, $value) : bool
     {
         $_SESSION[$key] = $value;
+        if($this->get($key) === $value) {
+            return true;
+        }
+        return false;
     }
 
-    public function get(string $value)
+    public function get(string $key)
     {
-        if (array_key_exists($value, $_SESSION)) {
-            return $_SESSION[$value];
+        if (array_key_exists($key, $_SESSION)) {
+            return $_SESSION[$key];
         }
 
         return false;
@@ -159,7 +163,7 @@ class session extends SessionHandler
 
     public function remember_me(bool $enabled) : bool
     {
-        return $this->set(['php_session_remember_me' => (int) $enabled]);
+        return $this->set('php_session_remember_me', (int) $enabled]);
     }
 
     public function logout() : bool

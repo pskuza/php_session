@@ -5,8 +5,6 @@ ini_set('display_errors', 1);
 
 require '../vendor/autoload.php';
 
-use php_session\session;
-
 $redis = new Redis();
 $redis->connect('127.0.0.1', 6379);
 
@@ -19,7 +17,7 @@ $db = \ParagonIE\EasyDB\Factory::create(
     ''
 );
 
-$session = new php_session\session($db, $cacheDriver, "test", 0, false);
+$session = new php_session\session($db, $cacheDriver, 'test', 0, false);
 
 session_set_save_handler($session, true);
 
