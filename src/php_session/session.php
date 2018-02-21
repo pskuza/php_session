@@ -65,7 +65,7 @@ class session extends SessionHandler
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
             if ($data_cache !== $data) {
                 //update
-                $this->db->update('sessions', ['session_data' => $data, ['id' => $id]);
+                $this->db->update('sessions', ['session_data' => $data], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
@@ -74,7 +74,7 @@ class session extends SessionHandler
             if ($data_cache = $this->db->cell('SELECT session_data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update
-                    $this->db->update('sessions', ['session_data' => $data, ['id' => $id]);
+                    $this->db->update('sessions', ['session_data' => $data], ['id' => $id]);
 
                     return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
                 }
