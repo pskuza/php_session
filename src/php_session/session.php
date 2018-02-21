@@ -163,7 +163,7 @@ class session extends SessionHandler
 
     public function remember_me(bool $enabled) : bool
     {
-        return $this->set('php_session_remember_me', (int) $enabled]);
+        return $this->set('php_session_remember_me', (int) $enabled);
     }
 
     public function logout() : bool
