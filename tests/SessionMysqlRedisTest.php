@@ -52,5 +52,11 @@ class SessionMysqlRedisTest extends TestCase
         $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlRedis.php?tests=7&locking=false');
 
         $this->assertEquals('0', $r->getBody()->getContents(), 'Remember me was not set to 0 in DB.');
+
+        //does gc work
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlRedis.php?tests=4&locking=false');
+        $r = $client->request('GET', 'http://127.0.0.1:8080/SessionMysqlRedis.php?tests=5&locking=false');
+
+        $this->assertEquals('0', $r->getBody()->getContents(), 'Garbage collection does not work.');
     }
 }

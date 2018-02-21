@@ -37,10 +37,12 @@ switch ($_GET['tests']) {
         $session->logout();
         break;
     case 4:
-        //dead
+        //force gc, should delete all sessions in db, who don't have remember_me === 1
+        $session->gc(0);
         break;
     case 5:
         //dead
+        echo $db->cell('SELECT COUNT(*) FROM sessions WHERE remember_me = 0');
         break;
     case 6:
         $session->remember_me(true);

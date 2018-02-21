@@ -43,7 +43,7 @@ switch ($_GET['tests']) {
         break;
     case 5:
         //dead
-        echo $db->cell('SELECT COUNT(*) FROM sessions');
+        echo $db->cell('SELECT COUNT(*) FROM sessions WHERE remember_me = 0');
         break;
     case 6:
         $session->remember_me(true);
