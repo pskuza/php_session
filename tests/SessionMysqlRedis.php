@@ -21,7 +21,10 @@ $session = new php_session\session($db, $cacheDriver, 'test', 0, false);
 
 session_set_save_handler($session, true);
 
-$session->start();
+if($_GET['tests'] !== 5) {
+    //dont create a session for case 5
+    $session->start();
+}
 
 switch ($_GET['tests']) {
     case 0:
@@ -37,7 +40,7 @@ switch ($_GET['tests']) {
         $session->logout();
         break;
     case 4:
-        //force gc, should delete all sessions in db, who don't have remember_me === 1
+        //force gc, should delete all sessions in db
         $session->gc(0);
         break;
     case 5:

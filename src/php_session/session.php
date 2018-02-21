@@ -99,9 +99,9 @@ class session extends SessionHandler
         return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
-    public function gc($maxlifetime) : bool
+    public function gc($maxlifetime, $delete_remember_me = false) : bool
     {
-        $rows = $this->db->run('SELECT id FROM sessions WHERE created_at <= ADDDATE(NOW(), INTERVAL -? SECOND) AND remember_me = 0', $maxlifetime);
+        $rows = $this->db->run('SELECT id FROM sessions WHERE created_at <= ADDDATE(NOW(), INTERVAL -? SECOND) AND remember_me = ?', $maxlifetime, (int) $delete_remember_me);
         $this->db->beginTransaction();
         foreach ($rows as $row) {
             //delete from cache and db

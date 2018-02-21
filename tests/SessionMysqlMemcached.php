@@ -22,7 +22,10 @@ $session = new php_session\session($db, $cacheDriver, 'test', 0, false);
 
 session_set_save_handler($session, true);
 
-$session->start();
+if($_GET['tests'] !== 5) {
+    //dont create a session for case 5
+    $session->start();
+}
 
 switch ($_GET['tests']) {
     case 0:
