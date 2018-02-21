@@ -89,7 +89,7 @@ class session extends SessionHandler
                 $this->db->insert('sessions', [
                     'id'                  => $id,
                     'session_data'        => $data,
-                    'remember_me'         => $remember_me
+                    'remember_me'         => $remember_me,
                 ]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
@@ -146,7 +146,7 @@ class session extends SessionHandler
     public function set(string $key, $value) : bool
     {
         $_SESSION[$key] = $value;
-        if($this->get($key) === $value) {
+        if ($this->get($key) === $value) {
             return true;
         }
         return false;
