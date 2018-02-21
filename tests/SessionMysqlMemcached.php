@@ -20,16 +20,15 @@ $db = \ParagonIE\EasyDB\Factory::create(
     ''
 );
 
-$session = new php_session\session($db, $cacheDriver, 0, false);
+$session = new php_session\session($db, $cacheDriver, "test", 0, false);
 
 session_set_save_handler($session, true);
 
 $session->start();
-$session->generate_csrf();
 
 switch ($_GET['tests']) {
     case 0:
-        $session->set(['tests' => $_GET['random']]);
+        $session->set('tests', $_GET['random']);
         break;
     case 1:
         $session->regenerate_id();
@@ -41,17 +40,10 @@ switch ($_GET['tests']) {
         $session->logout();
         break;
     case 4:
-        //increment a session variable
-        $count = $session->get('increment');
-        if (empty($count)) {
-            $session->set(['increment' => 1], true);
-        } else {
-            $count++;
-            $session->set(['increment' => $count], true);
-        }
+        //dead
         break;
     case 5:
-        echo $session->get('increment');
+        //dead
         break;
     case 6:
         $session->remember_me(true);

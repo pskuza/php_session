@@ -7,7 +7,6 @@
 * Caches everything in APC, Memcache, Memcached, Xcache or Redis. (https://github.com/doctrine/cache)
 * Remember me future for sessions that will not get garbage collected. 
 * 48 bytes of entropy for the session id.
-* CSRF-Token generation and checking feature.
 
 
 ## Install

@@ -12,15 +12,13 @@ class session extends SessionHandler
 
     protected $session_cache = null;
 
-    protected $session_cache_identifier = 'php_session_';
+    protected $session_cache_identifier;
 
     protected $cachetime;
 
-    protected $secure = true;
+    protected $secure;
 
-    protected $csrf_random_bytes_count = 32;
-
-    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, int $cachetime = 3600, bool $secure = null)
+    public function __construct(\ParagonIE\EasyDB\EasyDB $db, \Doctrine\Common\Cache\CacheProvider $session_cache, string $session_cache_identifier = "php_session_", int $cachetime = 3600, bool $secure = true)
     {
         $this->db = $db;
 
@@ -28,9 +26,9 @@ class session extends SessionHandler
 
         $this->cachetime = $cachetime;
 
-        if (!is_null($secure)) {
-            $this->secure = $secure;
-        }
+        $this->secure = $secure;
+
+        $this->session_cache_identifier = $session_cache_identifier;
     }
 
     public function open($save_path, $id) : bool
@@ -50,15 +48,13 @@ class session extends SessionHandler
             return $this->session_cache->fetch($this->session_cache_identifier.$id);
         } else {
             //try reading from db
-            if ($data = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
+            if ($data = $this->db->cell('SELECT session_data FROM sessions WHERE id = ?', $id)) {
                 $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
 
                 return $data;
-            } else {
-                //return session name for session_regenerate_id
-                return session_name();
             }
         }
+        return session_name();
     }
 
     private function _parseremember_me(string $data) : int
@@ -74,17 +70,17 @@ class session extends SessionHandler
             if ($data_cache !== $data) {
                 //update
                 $remember_me = $this->_parseremember_me($data);
-                $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
+                $this->db->update('sessions', ['session_data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
             $remember_me = $this->_parseremember_me($data);
-            if ($data_cache = $this->db->cell('SELECT data FROM sessions WHERE id = ?', $id)) {
+            if ($data_cache = $this->db->cell('SELECT session_data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update
-                    $this->db->update('sessions', ['data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
+                    $this->db->update('sessions', ['session_data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
 
                     return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
                 }
@@ -92,8 +88,7 @@ class session extends SessionHandler
                 //not in cache and not in db (first write)
                 $this->db->insert('sessions', [
                     'id'          => $id,
-                    'data'        => $data,
-                    'timestamp'   => time(),
+                    'session_data'        => $data,
                     'remember_me' => $remember_me,
                 ]);
 
@@ -111,9 +106,9 @@ class session extends SessionHandler
         return $this->session_cache->delete($this->session_cache_identifier.$id);
     }
 
-    public function gc($max) : bool
+    public function gc($maxlifetime) : bool
     {
-        $rows = $this->db->run('SELECT id FROM sessions WHERE timestamp < ? AND remember_me = 0', time() - intval($max));
+        $rows = $this->db->run('SELECT id FROM sessions WHERE created_at < ADDDATE(NOW(), INTERVAL -? SECOND) AND remember_me = 0', $maxlifetime);
         $this->db->beginTransaction();
         foreach ($rows as $row) {
             //delete from cache and db
@@ -148,30 +143,9 @@ class session extends SessionHandler
         return session_write_close();
     }
 
-    public function set(array $options, bool $lock_session = false) : bool
+    public function set(string $key, string $value) : bool
     {
-        $id = session_id();
-        if ($lock_session) {
-            //lock the session for any reads or writes until this operation is done
-            if (!$this->session_locking) {
-                throw new Exception('Class was not initiated with session_locking as true.');
-            } else {
-                //lock for session_lock_time seconds
-                $this->session_cache->save($this->session_cache_identifier.$id.'_lock', true, $this->session_lock_time);
-                foreach ($options as $k => $v) {
-                    $_SESSION[$k] = $v;
-                }
-
-                return $this->session_cache->delete($this->session_cache_identifier.$id.'_lock');
-            }
-        } else {
-            //dont lock
-            foreach ($options as $k => $v) {
-                $_SESSION[$k] = $v;
-            }
-
-            return true;
-        }
+        $_SESSION[$key] = $value;
     }
 
     public function get(string $value)
@@ -203,16 +177,5 @@ class session extends SessionHandler
         );
 
         return session_destroy();
-    }
-
-    public function generate_csrf() : bool
-    {
-        return $this->set(['php_session_csrf' => base64_encode(random_bytes($this->csrf_random_bytes_count))]);
-    }
-
-    public function check_csrf(string $token) : bool
-    {
-        //we should also check for verify that the request is same origin
-        return hash_equals($this->get('php_session_csrf'), $token);
     }
 }
