@@ -83,6 +83,7 @@ class session extends SessionHandler
                 $this->db->insert('sessions', [
                     'id'                  => $id,
                     'session_data'        => $data,
+                    'created_at'          => time(),
                 ]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
