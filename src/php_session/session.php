@@ -58,11 +58,6 @@ class session extends SessionHandler
         return session_name();
     }
 
-    private function _parseremember_me(string $data) : int
-    {
-        return (int) ((bool) strpos($data, 'php_session_remember_me|i:1'));
-    }
-
     public function write($id, $data) : bool
     {
         //check if cached
@@ -70,18 +65,16 @@ class session extends SessionHandler
             $data_cache = $this->session_cache->fetch($this->session_cache_identifier.$id);
             if ($data_cache !== $data) {
                 //update
-                $remember_me = $this->_parseremember_me($data);
-                $this->db->update('sessions', ['session_data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
+                $this->db->update('sessions', ['session_data' => $data, ['id' => $id]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
             }
         } else {
             //try reading from db
-            $remember_me = $this->_parseremember_me($data);
             if ($data_cache = $this->db->cell('SELECT session_data FROM sessions WHERE id = ?', $id)) {
                 if ($data_cache !== $data) {
                     //update
-                    $this->db->update('sessions', ['session_data' => $data, 'remember_me' => $remember_me], ['id' => $id]);
+                    $this->db->update('sessions', ['session_data' => $data, ['id' => $id]);
 
                     return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
                 }
@@ -90,7 +83,6 @@ class session extends SessionHandler
                 $this->db->insert('sessions', [
                     'id'                  => $id,
                     'session_data'        => $data,
-                    'remember_me'         => $remember_me,
                 ]);
 
                 return $this->session_cache->save($this->session_cache_identifier.$id, $data, $this->cachetime);
@@ -165,7 +157,7 @@ class session extends SessionHandler
 
     public function remember_me(bool $enabled) : bool
     {
-        return $this->set('php_session_remember_me', (int) $enabled);
+        return $this->db->update('sessions', ['remember_me' => (int) $enabled], ['id' => session_id()]);
     }
 
     public function logout() : bool
